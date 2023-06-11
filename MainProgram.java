@@ -51,7 +51,6 @@ public class MainProgram {
         fa_label3.setBounds(100,54, 97,30);
         JLabel fa_label4 = new JLabel("Final state=");
         fa_label4.setBounds(100,74, 80,30);
-        
         JComboBox<String> states_input = new JComboBox<>(states);
         states_input.setBounds(120,20, 130,20);
         JComboBox<String> alphabets_input = new JComboBox<>(alphabets);

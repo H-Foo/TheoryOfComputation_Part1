@@ -7,6 +7,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Map;
+
 import javax.swing.border.*;
 
 public class MainProgram {
@@ -41,6 +43,7 @@ public class MainProgram {
         String[] states = {"A","A,B","A,B,C","A,B,C,D","A,B,C,D,E","A,B,C,D,E,F","A,B,C,D,E,F,G","A,B,C,D,E,F,G,H","A,B,C,D,E,F,G,H,I","A,B,C,D,E,F,G,H,I,J"};//Q
         String[] alphabets = {"0,1","0,1,2","0,1,2,3"}; //∑
         String[] initials= {"A","B","C","D","E","F","G","H","I","J"};
+        String[] initials= {"A","B","C","D","E","F","G","H","I","J"};
         JLabel fa_label1 = new JLabel("Q=");
         fa_label1.setBounds(100,14, 80,30); 
         JLabel fa_label2 =new JLabel("∑=");    
@@ -50,6 +53,10 @@ public class MainProgram {
         JLabel fa_label4 = new JLabel("Final state=");
         fa_label4.setBounds(100,74, 80,30);
 
+        JLabel fa_label3 = new JLabel("Initial state=");
+        fa_label3.setBounds(100,54, 97,30);
+        JLabel fa_label4 = new JLabel("Final state=");
+        fa_label4.setBounds(100,74, 80,30);
         JComboBox<String> states_input = new JComboBox<>(states);
         states_input.setBounds(120,20, 130,20);
         JComboBox<String> alphabets_input = new JComboBox<>(alphabets);
@@ -59,7 +66,7 @@ public class MainProgram {
         JComboBox<String> final_input = new JComboBox<>(initials);
         final_input.setBounds(180, 80, 60,20);
 
-        
+
         // Component 2: Regular Grammar Conversion Output
 
         // Component 3: Check Strings (input) (can check min. 5 string at once)

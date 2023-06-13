@@ -7,7 +7,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Map;
+import javax.swing.table.DefaultTableModel;
 
 import javax.swing.border.*;
 
@@ -18,7 +18,7 @@ public class MainProgram {
         JTextArea content = new JTextArea(500,500);
         program_frame.add(content);
         JTabbedPane tp = new JTabbedPane();
-        tp.setBounds(0,0,500,500);  
+        tp.setBounds(0,0,700,500);  
 
         //panel for home page
         JPanel home_page = new JPanel();        
@@ -64,15 +64,20 @@ public class MainProgram {
         // Component 2: Regular Grammar Conversion Output
 
         // Component 3: Check Strings (input) (can check min. 5 string at once)
-        JButton b1 = new JButton("New"); 
+        JButton b1 = new JButton("New");  //on click, generate a transition table based on Q and ∑, for user to fill up
         b1.setBounds(5,10, 80,25); 
         JButton b2 = new JButton("Clear");  // on click, clear program
         b2.setBounds(5,40, 80,25);
         JButton b3 = new JButton("RG");  // on click, submit input to generate rg output
         b3.setBounds(5,70, 80,25);
-       
-        JLabel output1 = new JLabel();
-        fa_rg_page.add(output1);
+
+        DefaultTableModel model = new DefaultTableModel();
+        JTable NFATable = new JTable(model);
+        JScrollPane scrollPane = new JScrollPane(NFATable);
+        scrollPane.setBounds(250, 10, 300, 200);
+        fa_rg_page.add(scrollPane);
+                
+
         fa_rg_page.add(b1);
         fa_rg_page.add(b2);
         fa_rg_page.add(b3);
@@ -85,19 +90,111 @@ public class MainProgram {
         fa_rg_page.add(fa_label4);
         fa_rg_page.add(final_input);
 
-        //upon clicking b3
-        b3.addActionListener(new ActionListener(){
+        //upon clicking b1
+        b1.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
-                String states_choice = states_input.getSelectedItem().toString();
-                String alphabets_choice = alphabets_input.getSelectedItem().toString();
-                String initial_choice = initial_input.getSelectedItem().toString();
-                String final_choice = final_input.getSelectedItem().toString();
-        
-                output1.setText("The output is: " + states_choice +", "+alphabets_choice+", "+initial_choice+", "+final_choice);
-                output1.setBounds(300, 10, 200, 100);
-                
+                if (alphabets_input.getSelectedItem().toString() == "0,1"){
+                    model.addColumn("δNFA");
+                    model.addColumn("0");
+                    model.addColumn("1");
+                    model.addColumn("ε");
+                } else if (alphabets_input.getSelectedItem().toString() == "0,1,2"){
+                    model.addColumn("δNFA");
+                    model.addColumn("0");
+                    model.addColumn("1");
+                    model.addColumn("2");
+                    model.addColumn("ε");
+                   
+                } else if (alphabets_input.getSelectedItem().toString() == "0,1,2,3"){
+                    model.addColumn("δNFA");
+                    model.addColumn("0");
+                    model.addColumn("1");
+                    model.addColumn("2");
+                    model.addColumn("3");
+                    model.addColumn("ε");
+                }
+
+                //add rows
+                if (states_input.getSelectedItem().toString()=="A"){
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B"){
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C"){
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C,D"){
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C,D,E"){
+                    model.insertRow(0, new Object[] { "E" });
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C,D,E,F"){
+                    model.insertRow(0, new Object[] { "F" });
+                    model.insertRow(0, new Object[] { "E" });
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C,D,E,F,G"){
+                    model.insertRow(0, new Object[] { "G" });
+                    model.insertRow(0, new Object[] { "F" });
+                    model.insertRow(0, new Object[] { "E" });
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C,D,E,F,G,H"){
+                    model.insertRow(0, new Object[] { "H" });
+                    model.insertRow(0, new Object[] { "G" });
+                    model.insertRow(0, new Object[] { "F" });
+                    model.insertRow(0, new Object[] { "E" });
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if (states_input.getSelectedItem().toString()=="A,B,C,D,E,F,G,H,I"){
+                    model.insertRow(0, new Object[] { "I" });
+                    model.insertRow(0, new Object[] { "H" });
+                    model.insertRow(0, new Object[] { "G" });
+                    model.insertRow(0, new Object[] { "F" });
+                    model.insertRow(0, new Object[] { "E" });
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                } else if(states_input.getSelectedItem().toString()=="A,B,C,D,E,F,G,H,I,J"){
+                    model.insertRow(0, new Object[] { "J" });
+                    model.insertRow(0, new Object[] { "I" });
+                    model.insertRow(0, new Object[] { "H" });
+                    model.insertRow(0, new Object[] { "G" });
+                    model.insertRow(0, new Object[] { "F" });
+                    model.insertRow(0, new Object[] { "E" });
+                    model.insertRow(0, new Object[] { "D" });
+                    model.insertRow(0, new Object[] { "C" });
+                    model.insertRow(0, new Object[] { "B" });
+                    model.insertRow(0, new Object[] { "A" });
+                }
+
+
             }
         });
+
+        b2.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                
+                model.setRowCount(0);
+                model.setColumnCount(0);
+
+            }
+        });
+
 
         
         
@@ -118,7 +215,7 @@ public class MainProgram {
         tp.addTab("Help",help_page);
         program_frame.add(tp);
 
-        program_frame.setSize(500,500);
+        program_frame.setSize(700,500);
         program_frame.setLayout(null);  
         program_frame.setVisible(true);
         program_frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

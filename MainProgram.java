@@ -1,9 +1,3 @@
-// Part 1: 
-// Convert Finite Automata into Regular Grammar (FA can be entered as a formal definition
-// with transition table)
-// Testing strings (up to 5 at once) a statement to inform user whether
-// string is accepted or rejected
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -75,18 +69,37 @@ public class MainProgram {
         b3.setBounds(5,70, 80,25);
 
         //NFA Table component
+        JLabel NFA_Header = new JLabel("(Input)");
+        NFA_Header.setBounds(320,0, 300,25);
+        fa_rg_page.add(NFA_Header);
         DefaultTableModel model = new DefaultTableModel();
         JTable NFATable = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(NFATable);
-        scrollPane.setBounds(250, 10, 300, 200);
+        scrollPane.setBounds(320, 20, 300, 200);
         fa_rg_page.add(scrollPane);
 
         //RG component
+        JLabel RG_Header = new JLabel("Regular Grammars(Output)");
+        RG_Header.setBounds(10,200, 300,25);
+        fa_rg_page.add(RG_Header);
         JTextArea RGTextArea = new JTextArea();
         RGTextArea.setEditable(false);
         JScrollPane scrollPane2 = new JScrollPane(RGTextArea);
         scrollPane2.setBounds(10, 220, 300, 200);      
         fa_rg_page.add(scrollPane2);
+
+        //String Checking component
+        JLabel FA_Strings_Header = new JLabel("Check Strings(Input)");
+        FA_Strings_Header.setBounds(320,225, 300,25);
+        fa_rg_page.add(FA_Strings_Header);
+        JButton b4 = new JButton("Check");
+        b4.setBounds(540,265, 70, 20);
+        fa_rg_page.add(b4);
+        DefaultTableModel fa_checkstrings_model = new DefaultTableModel(); //Displaying check strings and status in table
+        JTable FA_Checkstrings_Table = new JTable(fa_checkstrings_model);
+        JScrollPane scrollPane3 = new JScrollPane(FA_Checkstrings_Table);
+        scrollPane3.setBounds(320, 250, 300, 150);
+        fa_rg_page.add(scrollPane3);
 
         fa_rg_page.add(b1);
         fa_rg_page.add(b2);

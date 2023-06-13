@@ -93,14 +93,19 @@ public class MainProgram {
         FA_Strings_Header.setBounds(320,225, 300,25);
         fa_rg_page.add(FA_Strings_Header);
         JButton b4 = new JButton("Check");
-        b4.setBounds(540,265, 70, 20);
+        b4.setBounds(540,225, 70, 20);
         fa_rg_page.add(b4);
         DefaultTableModel fa_checkstrings_model = new DefaultTableModel(); //Displaying check strings and status in table
         JTable FA_Checkstrings_Table = new JTable(fa_checkstrings_model);
         JScrollPane scrollPane3 = new JScrollPane(FA_Checkstrings_Table);
         scrollPane3.setBounds(320, 250, 300, 150);
         fa_rg_page.add(scrollPane3);
-
+        fa_checkstrings_model.addColumn(""); //add two columns: one for user input and one for status
+        fa_checkstrings_model.addColumn("");
+        for(int i=0; i<5; i++){
+            fa_checkstrings_model.insertRow(0, new Object[]{""});
+        }
+        
         fa_rg_page.add(b1);
         fa_rg_page.add(b2);
         fa_rg_page.add(b3);
@@ -275,7 +280,16 @@ public class MainProgram {
             }
         });
 
-
+        b4.addActionListener(new ActionListener(){ //checks if the user table input values will be accepted based on grammar
+            public void actionPerformed(ActionEvent e) {
+                
+                int numRows = FA_Checkstrings_Table.getRowCount();
+                for (int row = 0; row < numRows; row++){
+                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get value from the user input side
+                    
+                }
+            }
+        });
         
         
 

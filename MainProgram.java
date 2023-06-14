@@ -1,17 +1,18 @@
-// Part 1: 
-// Convert Finite Automata into Regular Grammar (FA can be entered as a formal definition
-// with transition table)
-// Testing strings (up to 5 at once) a statement to inform user whether
-// string is accepted or rejected
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import javax.swing.table.DefaultTableModel;
 
 import javax.swing.border.*;
 
 public class MainProgram {
+
+    
 
     public static void main(String[] args){
         JFrame program_frame = new JFrame(); //creating one new window where everything takes place
@@ -60,10 +61,6 @@ public class MainProgram {
         JComboBox<String> final_input = new JComboBox<>(initials);
         final_input.setBounds(180, 80, 60,20);
 
-
-        // Component 2: Regular Grammar Conversion Output
-
-        // Component 3: Check Strings (input) (can check min. 5 string at once)
         JButton b1 = new JButton("New");  //on click, generate a transition table based on Q and ∑, for user to fill up
         b1.setBounds(5,10, 80,25); 
         JButton b2 = new JButton("Clear");  // on click, clear program
@@ -71,13 +68,44 @@ public class MainProgram {
         JButton b3 = new JButton("RG");  // on click, submit input to generate rg output
         b3.setBounds(5,70, 80,25);
 
+        //NFA Table component
+        JLabel NFA_Header = new JLabel("(Input)");
+        NFA_Header.setBounds(320,0, 300,25);
+        fa_rg_page.add(NFA_Header);
         DefaultTableModel model = new DefaultTableModel();
         JTable NFATable = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(NFATable);
-        scrollPane.setBounds(250, 10, 300, 200);
+        scrollPane.setBounds(320, 20, 300, 200);
         fa_rg_page.add(scrollPane);
-                
 
+        //RG component
+        JLabel RG_Header = new JLabel("Regular Grammars(Output)");
+        RG_Header.setBounds(10,200, 300,25);
+        fa_rg_page.add(RG_Header);
+        JTextArea RGTextArea = new JTextArea();
+        RGTextArea.setEditable(false);
+        JScrollPane scrollPane2 = new JScrollPane(RGTextArea);
+        scrollPane2.setBounds(10, 220, 300, 200);      
+        fa_rg_page.add(scrollPane2);
+
+        //String Checking component
+        JLabel FA_Strings_Header = new JLabel("Check Strings(Input)");
+        FA_Strings_Header.setBounds(320,225, 300,25);
+        fa_rg_page.add(FA_Strings_Header);
+        JButton b4 = new JButton("Check");
+        b4.setBounds(540,225, 70, 20);
+        fa_rg_page.add(b4);
+        DefaultTableModel fa_checkstrings_model = new DefaultTableModel(); //Displaying check strings and status in table
+        JTable FA_Checkstrings_Table = new JTable(fa_checkstrings_model);
+        JScrollPane scrollPane3 = new JScrollPane(FA_Checkstrings_Table);
+        scrollPane3.setBounds(320, 250, 300, 150);
+        fa_rg_page.add(scrollPane3);
+        fa_checkstrings_model.addColumn(""); //add two columns: one for user input and one for status
+        fa_checkstrings_model.addColumn("");
+        for(int i=0; i<5; i++){
+            fa_checkstrings_model.insertRow(0, new Object[]{""});
+        }
+        
         fa_rg_page.add(b1);
         fa_rg_page.add(b2);
         fa_rg_page.add(b3);
@@ -182,20 +210,86 @@ public class MainProgram {
                     model.insertRow(0, new Object[] { "A" });
                 }
 
-
+                
             }
         });
 
-        b2.addActionListener(new ActionListener(){
+        b2.addActionListener(new ActionListener(){ //clears the table
             public void actionPerformed(ActionEvent e) {
                 
                 model.setRowCount(0);
                 model.setColumnCount(0);
+                File file = new File("RG.txt");
+                file.delete();
 
             }
         });
 
+        b3.addActionListener(new ActionListener(){ //saves edited changes and generates rg
+            public void actionPerformed(ActionEvent e) {
+                
+                int numRows = NFATable.getRowCount();
+                int numCols = NFATable.getColumnCount();
 
+                try (FileWriter fileWriter = new FileWriter("RG.txt")) {
+                    
+                
+
+                for (int row = 0; row < numRows; row++) {
+                    for (int col = 0; col < numCols; col++) {
+                        Object value = NFATable.getValueAt(row, col);
+                        // Save the value to your desired storage or perform any other operation
+                        if(NFATable.getColumnName(col)!="δNFA"){
+                            if (value != null) {
+                                String currentState = (String) NFATable.getValueAt(row, 0);
+                                String nextStates = (String) NFATable.getValueAt(row, col);
+                                String inputSymbol = (String) NFATable.getColumnName(col);
+                                
+                                // Conditions for epsilon
+                                if (inputSymbol=="ε"){
+                                    inputSymbol="";
+                                }
+
+                                // Generate RG production rule in the form: currentState -> inputSymbol nextStates
+                                String productionRule = currentState + " -> " + inputSymbol + nextStates +"\n";
+                                
+                                // Save the RG
+                                fileWriter.write(productionRule);
+                                
+                            }else{
+                                continue;
+                            }
+                        }
+                        
+                    
+                    }
+                }} catch (IOException e2) {
+                    e2.printStackTrace();
+                }
+
+                //display to gui
+                try {
+                    // Read some text from the resource file to display in
+                    // the JTextArea.
+                    RGTextArea.read(new BufferedReader(new FileReader("RG.txt")), null);
+
+                } catch (IOException e3) {
+                    e3.printStackTrace();
+                }
+
+            }
+        });
+
+        b4.addActionListener(new ActionListener(){ //checks if the user table input values will be accepted based on grammar
+            public void actionPerformed(ActionEvent e) {
+                
+                int numRows = FA_Checkstrings_Table.getRowCount();
+                for (int row = 0; row < numRows; row++){
+                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get value from the user input side
+                    
+                }
+            }
+        });
         
         
 

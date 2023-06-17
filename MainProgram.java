@@ -3,10 +3,15 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.List;
+//import StringChecker.java;
 
 import javax.swing.border.*;
 
@@ -44,6 +49,8 @@ public class MainProgram {
         String[] states = {"A","A,B","A,B,C","A,B,C,D","A,B,C,D,E","A,B,C,D,E,F","A,B,C,D,E,F,G","A,B,C,D,E,F,G,H","A,B,C,D,E,F,G,H,I","A,B,C,D,E,F,G,H,I,J"};//Q
         String[] alphabets = {"0,1","0,1,2","0,1,2,3"}; //∑
         String[] initials= {"A","B","C","D","E","F","G","H","I","J"};
+        String[] finals= {"A","B","C","D","E","F","G","H","I","J"};
+   
         JLabel fa_label1 = new JLabel("Q=");
         fa_label1.setBounds(100,14, 80,30); 
         JLabel fa_label2 =new JLabel("∑=");    
@@ -58,7 +65,7 @@ public class MainProgram {
         alphabets_input.setBounds(120,40, 100,20);
         JComboBox<String> initial_input = new JComboBox<>(initials);
         initial_input.setBounds(180, 60, 60,20);
-        JComboBox<String> final_input = new JComboBox<>(initials);
+        JComboBox<String> final_input = new JComboBox<>(finals);
         final_input.setBounds(180, 80, 60,20);
 
         JButton b1 = new JButton("New");  //on click, generate a transition table based on Q and ∑, for user to fill up
@@ -100,8 +107,9 @@ public class MainProgram {
         JScrollPane scrollPane3 = new JScrollPane(FA_Checkstrings_Table);
         scrollPane3.setBounds(320, 250, 300, 150);
         fa_rg_page.add(scrollPane3);
-        fa_checkstrings_model.addColumn(""); //add two columns: one for user input and one for status
-        fa_checkstrings_model.addColumn("");
+        fa_checkstrings_model.addColumn("Input Strings"); //add two columns: one for user input and one for status
+        fa_checkstrings_model.addColumn("Result");
+        
         for(int i=0; i<5; i++){
             fa_checkstrings_model.insertRow(0, new Object[]{""});
         }
@@ -121,6 +129,7 @@ public class MainProgram {
         //upon clicking b1
         b1.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
+
                 if (alphabets_input.getSelectedItem().toString() == "0,1"){
                     model.addColumn("δNFA");
                     model.addColumn("0");
@@ -225,45 +234,62 @@ public class MainProgram {
             }
         });
 
-        b3.addActionListener(new ActionListener(){ //saves edited changes and generates rg
+        //generate RG when user clicks button
+        b3.addActionListener(new ActionListener(){ 
             public void actionPerformed(ActionEvent e) {
-                
+                final String finalState = final_input.getSelectedItem().toString();
+                System.out.print("finalState b3: "+ finalState + "\n");
                 int numRows = NFATable.getRowCount();
                 int numCols = NFATable.getColumnCount();
 
-                try (FileWriter fileWriter = new FileWriter("RG.txt")) {
-                    
-                
-
-                for (int row = 0; row < numRows; row++) {
+                try (FileWriter fileWriter = new FileWriter("RG.txt")) { 
+                    StringBuilder grammar = new StringBuilder();   
+                   
+                    for (int row = 0; row < numRows; row++) {
+                    StringBuilder productions = new StringBuilder();
+                    String currentState = (String) NFATable.getValueAt(row, 0);
+                        
                     for (int col = 0; col < numCols; col++) {
                         Object value = NFATable.getValueAt(row, col);
                         // Save the value to your desired storage or perform any other operation
                         if(NFATable.getColumnName(col)!="δNFA"){
                             if (value != null) {
-                                String currentState = (String) NFATable.getValueAt(row, 0);
                                 String nextStates = (String) NFATable.getValueAt(row, col);
                                 String inputSymbol = (String) NFATable.getColumnName(col);
                                 
-                                // Conditions for epsilon
-                                if (inputSymbol=="ε"){
+                                //Conditions for epsilon
+                                if (inputSymbol.equals("ε")){
                                     inputSymbol="";
                                 }
-
-                                // Generate RG production rule in the form: currentState -> inputSymbol nextStates
-                                String productionRule = currentState + " -> " + inputSymbol + nextStates +"\n";
                                 
-                                // Save the RG
-                                fileWriter.write(productionRule);
-                                
+                                if(!nextStates.isEmpty()){
+                                    //handling user input of multiple nextStates that accepts same input symbol
+                                    String[] nextStatesArr = nextStates.split(",");
+                                    for (String nextState : nextStatesArr){
+                                    if (productions.length() >0){
+                                        productions.append(" | ");
+                                    }
+                                    productions.append(inputSymbol).append(nextState.trim());
+                                    }
+                                }
                             }else{
                                 continue;
                             }
                         }
-                        
-                    
                     }
-                }} catch (IOException e2) {
+                    //build the grammar for each state 
+                    if(productions.length() >0){
+                        grammar.append(currentState).append(" -> ").append(productions).append(System.lineSeparator());    
+                    }
+                }
+                    //for final state, add grammar of epsilon
+                    grammar.append(finalState).append (" -> ").append("ε").append(System.lineSeparator());
+
+                    String regularGrammar = grammar.toString();
+
+                    // Save the RG
+                    fileWriter.write(regularGrammar);
+                } catch (IOException e2) {
                     e2.printStackTrace();
                 }
 
@@ -280,14 +306,28 @@ public class MainProgram {
             }
         });
 
+        //component: string checking
         b4.addActionListener(new ActionListener(){ //checks if the user table input values will be accepted based on grammar
             public void actionPerformed(ActionEvent e) {
                 
                 int numRows = FA_Checkstrings_Table.getRowCount();
+                boolean isAccepted; 
+                List<String> inputString = new ArrayList<String>();
+                //retrieve strings from user input
                 for (int row = 0; row < numRows; row++){
-                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get value from the user input side
+                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get value from the user input column
                     
+                    System.out.print("row: "+ row + value + "\n");
+                    //store user input in an array
+                    if (value != null){
+                        inputString.add(value.toString());
+                    }
                 }
+                Map<String, List<String>> grammarProductions = new HashMap<>();
+
+                StringChecker checkString = new StringChecker(grammarProductions);
+
+                //
             }
         });
         

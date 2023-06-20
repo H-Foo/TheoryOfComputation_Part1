@@ -3,15 +3,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.List;
-//import StringChecker.java;
 
 import javax.swing.border.*;
 
@@ -100,8 +97,11 @@ public class MainProgram {
         FA_Strings_Header.setBounds(320,225, 300,25);
         fa_rg_page.add(FA_Strings_Header);
         JButton b4 = new JButton("Check");
-        b4.setBounds(540,225, 70, 20);
+        b4.setBounds(540,225, 60, 20);
         fa_rg_page.add(b4);
+        JButton b5 = new JButton("Clear");
+        b5.setBounds(480,225, 60, 20);
+        fa_rg_page.add(b5);
         DefaultTableModel fa_checkstrings_model = new DefaultTableModel(); //Displaying check strings and status in table
         JTable FA_Checkstrings_Table = new JTable(fa_checkstrings_model);
         JScrollPane scrollPane3 = new JScrollPane(FA_Checkstrings_Table);
@@ -225,12 +225,10 @@ public class MainProgram {
 
         b2.addActionListener(new ActionListener(){ //clears the table
             public void actionPerformed(ActionEvent e) {
-                
                 model.setRowCount(0);
                 model.setColumnCount(0);
                 File file = new File("RG.txt");
                 file.delete();
-
             }
         });
 
@@ -238,7 +236,6 @@ public class MainProgram {
         b3.addActionListener(new ActionListener(){ 
             public void actionPerformed(ActionEvent e) {
                 final String finalState = final_input.getSelectedItem().toString();
-                System.out.print("finalState b3: "+ finalState + "\n");
                 int numRows = NFATable.getRowCount();
                 int numCols = NFATable.getColumnCount();
 
@@ -309,29 +306,103 @@ public class MainProgram {
         //component: string checking
         b4.addActionListener(new ActionListener(){ //checks if the user table input values will be accepted based on grammar
             public void actionPerformed(ActionEvent e) {
-                
+                final String finalState = final_input.getSelectedItem().toString();
+                final String initState = initial_input.getSelectedItem().toString();
                 int numRows = FA_Checkstrings_Table.getRowCount();
                 boolean isAccepted; 
                 List<String> inputString = new ArrayList<String>();
                 //retrieve strings from user input
                 for (int row = 0; row < numRows; row++){
-                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get value from the user input column
+                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get strings from the user input column
                     
-                    System.out.print("row: "+ row + value + "\n");
                     //store user input in an array
-                    if (value != null){
+                    if (value != null && !value.toString().isEmpty()){
                         inputString.add(value.toString());
                     }
                 }
-                Map<String, List<String>> grammarProductions = new HashMap<>();
+           
+                StringChecker checkString = new StringChecker("RG.txt");
 
-                StringChecker checkString = new StringChecker(grammarProductions);
+                //debug error in RG.txt
+                if (checkString.getGrammarProductions().isEmpty()){
+                    System.out.println("RG.txt productions not loaded properly. Check the file.");
+                    return;
+                }
+                //stores string result Accept/Reject
+                List<String> checkedString = new ArrayList<String>();
+                for (String input : inputString){
+                    isAccepted = checkString.validateString(input,initState,finalState);
 
-                //
+                    if(isAccepted){
+                        System.out.println("String "+ input + " is Accepted");
+                        checkedString.add("Accepted");
+                    }
+                    else{
+                        System.out.println("String " + input + " is Rejected");
+                        checkedString.add("Rejected");
+                    }
+                }
+                
+                for(int row=0;row<checkedString.size();row++){
+                    fa_checkstrings_model.setValueAt(checkedString.get(row), row, 1);
+                }
             }
         });
         
+         //component: string checking
+         b4.addActionListener(new ActionListener(){ //checks if the user table input values will be accepted based on grammar
+            public void actionPerformed(ActionEvent e) {
+                final String finalState = final_input.getSelectedItem().toString();
+                final String initState = initial_input.getSelectedItem().toString();
+                int numRows = FA_Checkstrings_Table.getRowCount();
+                boolean isAccepted; 
+                List<String> inputString = new ArrayList<String>();
+                //retrieve strings from user input
+                for (int row = 0; row < numRows; row++){
+                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get strings from the user input column
+                    //store user input in an array
+                    if (value != null && !value.toString().isEmpty()){
+                        inputString.add(value.toString());
+                    }
+                }
+                //parse regular grammar from textfile and validate the input string
+                StringChecker checkString = new StringChecker("RG.txt");
+
+                //debug error in RG.txt
+                if (checkString.getGrammarProductions().isEmpty()){
+                    System.out.println("RG.txt productions not loaded properly. Check the file.");
+                    return;
+                }
+                //stores string result Accept/Reject
+                List<String> checkedString = new ArrayList<String>();
+                for (String input : inputString){
+                    isAccepted = checkString.validateString(input,initState,finalState);
+                    if(isAccepted){
+                        checkedString.add("Accepted");
+                    }else{
+                        checkedString.add("Rejected");
+                    }
+                }
+                //print result in GUI
+                for(int row=0;row<checkedString.size();row++){
+                    fa_checkstrings_model.setValueAt(checkedString.get(row), row, 1);
+                }
+            }
+        });
         
+         //component: clears check Strings table.
+         b5.addActionListener(new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                int rows = fa_checkstrings_model.getRowCount();
+                int cols = fa_checkstrings_model.getColumnCount();
+
+                for(int row=0; row<rows; row++){
+                    for(int col=0; col<cols; col++){
+                        fa_checkstrings_model.setValueAt("", row, col);
+                    }
+                }
+            }
+        });
 
 
 

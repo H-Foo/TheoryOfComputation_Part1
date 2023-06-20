@@ -44,7 +44,7 @@ public class MainProgram {
         fa_rg_page.setLayout(null);
         // Component 1: Input (must accept 1-10 variables/states, 1-3 alphabet and Epsilon)
         String[] states = {"A","A,B","A,B,C","A,B,C,D","A,B,C,D,E","A,B,C,D,E,F","A,B,C,D,E,F,G","A,B,C,D,E,F,G,H","A,B,C,D,E,F,G,H,I","A,B,C,D,E,F,G,H,I,J"};//Q
-        String[] alphabets = {"0,1","0,1,2","0,1,2,3"}; //∑
+        String[] alphabets = {"0,1","0,1,2","0,1,2,3","a,b","a,b,c"}; //∑
         String[] initials= {"A","B","C","D","E","F","G","H","I","J"};
         String[] finals= {"A","B","C","D","E","F","G","H","I","J"};
    
@@ -149,6 +149,20 @@ public class MainProgram {
                     model.addColumn("2");
                     model.addColumn("3");
                     model.addColumn("ε");
+
+                } else if (alphabets_input.getSelectedItem().toString() == "a,b"){
+                    model.addColumn("δNFA");
+                    model.addColumn("a");
+                    model.addColumn("b");
+                    model.addColumn("ε");
+                   
+                } else if (alphabets_input.getSelectedItem().toString() == "a,b,c"){
+                    model.addColumn("δNFA");
+                    model.addColumn("a");
+                    model.addColumn("b");
+                    model.addColumn("c");
+                    model.addColumn("ε");
+                   
                 }
 
                 //add rows

@@ -15,22 +15,33 @@ public class StringChecker {
         return validateStringHelper(input,initialState,finalState);
     }
 
-    private boolean validateStringHelper(String input, String currentState, String finalState) {
+    private boolean validateStringHelper(String input, String currentState, String finalState) { 
+        
+        //check if input is empty for final state
+        if(input.isEmpty()){
+            return currentState.equals(finalState);
+        }
+        
         List<String> productions = grammarProductions.get(currentState);
     
         if (productions != null) {
             for(String production : productions){
                 String inputSymbol = production.substring(0,1);
                 String nextState = production.substring(1);
-
-                if(input.startsWith(inputSymbol)){
-                    if(validateStringHelper(input.substring(1), nextState,finalState)){
-                        return true;
-                    }             
+                
+                if (inputSymbol.equals("ε")){
+                    if(validateStringHelper(input, nextState,finalState)){
+                            return true;
+                        }
                 }
+                else if (input.startsWith(inputSymbol)){
+                    if (validateStringHelper(input.substring(1), nextState, finalState)) {
+                        return true;
+                    }           
+                }                 
             }
         }
-        return currentState.equals(finalState); //false
+        return false; 
     }
 
     private Map<String, List<String>> readRegularGrammarFromFile(String filePath){

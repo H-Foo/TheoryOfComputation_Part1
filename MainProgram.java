@@ -8,7 +8,9 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 import javax.swing.border.*;
 
@@ -250,6 +252,14 @@ public class MainProgram {
         b3.addActionListener(new ActionListener(){ 
             public void actionPerformed(ActionEvent e) {
                 final String finalState = final_input.getSelectedItem().toString();
+                //get the range of valid states based on the state_input
+                final String stateRange = states_input.getSelectedItem().toString();
+                //parse the stateRange into an array to be compared with the Nextstate input from table
+                String[] stateRangeArr = stateRange.split(",");
+
+                //flag for input error handling
+                boolean errorInput = false;
+                
                 int numRows = NFATable.getRowCount();
                 int numCols = NFATable.getColumnCount();
 
@@ -262,37 +272,55 @@ public class MainProgram {
                         
                     for (int col = 0; col < numCols; col++) {
                         Object value = NFATable.getValueAt(row, col);
+
                         // Save the value to your desired storage or perform any other operation
                         if(NFATable.getColumnName(col)!="δNFA"){
                             if (value != null) {
-                                String nextStates = (String) NFATable.getValueAt(row, col);
+                    
+                                //String nextStates = (String) NFATable.getValueAt(row, col);
+                                String nextStates = value.toString();
                                 String inputSymbol = (String) NFATable.getColumnName(col);
-                                
                                 //Conditions for epsilon
                                 if (inputSymbol.equals("ε")){
                                     inputSymbol="";
                                 }
                                 
-                                if(!nextStates.isEmpty()){
-                                    //handling user input of multiple nextStates that accepts same input symbol
-                                    String[] nextStatesArr = nextStates.split(",");
-                                    for (String nextState : nextStatesArr){
-                                    if (productions.length() >0){
-                                        productions.append(" | ");
-                                    }
-                                    productions.append(inputSymbol).append(nextState.trim());
+                                String[] nextStatesArr = nextStates.split(",");
+                                boolean nextStatesMatch = false;
+
+                                for (String nextState : nextStatesArr){
+                                    if (Arrays.asList(stateRangeArr).contains(nextState.trim())){
+                                        if (productions.length() >0){
+                                            productions.append(" | ");
+                                        }
+                                        productions.append(inputSymbol).append(nextState.trim());
+                                        nextStatesMatch = true;
                                     }
                                 }
-                            }else{
+
+                                if(!nextStatesMatch){
+                                    System.out.println("Input Error!");
+                                    JOptionPane.showMessageDialog(null, "Invalid state entered", "Error", JOptionPane.ERROR_MESSAGE);
+                                    errorInput = true;
+                                    break;
+                                }
+                            } else {
                                 continue;
                             }
                         }
+                    }
+                    //prevents from generating wrong RG when wrong user input
+                    if(errorInput){
+                        fileWriter.write("Invalid transition table");
+                        break;
                     }
                     //build the grammar for each state 
                     if(productions.length() >0){
                         grammar.append(currentState).append(" -> ").append(productions).append(System.lineSeparator());    
                     }
                 }
+
+                if (!errorInput){
                     //for final state, add grammar of epsilon
                     grammar.append(finalState).append (" -> ").append("ε").append(System.lineSeparator());
 
@@ -300,6 +328,7 @@ public class MainProgram {
 
                     // Save the RG
                     fileWriter.write(regularGrammar);
+                }
                 } catch (IOException e2) {
                     e2.printStackTrace();
                 }
@@ -340,6 +369,7 @@ public class MainProgram {
                 //debug error in RG.txt
                 if (checkString.getGrammarProductions().isEmpty()){
                     System.out.println("RG.txt productions not loaded properly. Check the file.");
+                    JOptionPane.showMessageDialog(null, "No Regular Grammar Generated", "Error", JOptionPane.ERROR_MESSAGE);        
                     return;
                 }
                 //stores string result Accept/Reject
@@ -357,47 +387,6 @@ public class MainProgram {
                     }
                 }
                 
-                for(int row=0;row<checkedString.size();row++){
-                    fa_checkstrings_model.setValueAt(checkedString.get(row), row, 1);
-                }
-            }
-        });
-        
-         //component: string checking
-         b4.addActionListener(new ActionListener(){ //checks if the user table input values will be accepted based on grammar
-            public void actionPerformed(ActionEvent e) {
-                final String finalState = final_input.getSelectedItem().toString();
-                final String initState = initial_input.getSelectedItem().toString();
-                int numRows = FA_Checkstrings_Table.getRowCount();
-                boolean isAccepted; 
-                List<String> inputString = new ArrayList<String>();
-                //retrieve strings from user input
-                for (int row = 0; row < numRows; row++){
-                    Object value =FA_Checkstrings_Table.getValueAt(row,0); //get strings from the user input column
-                    //store user input in an array
-                    if (value != null && !value.toString().isEmpty()){
-                        inputString.add(value.toString());
-                    }
-                }
-                //parse regular grammar from textfile and validate the input string
-                StringChecker checkString = new StringChecker("RG.txt");
-
-                //debug error in RG.txt
-                if (checkString.getGrammarProductions().isEmpty()){
-                    System.out.println("RG.txt productions not loaded properly. Check the file.");
-                    return;
-                }
-                //stores string result Accept/Reject
-                List<String> checkedString = new ArrayList<String>();
-                for (String input : inputString){
-                    isAccepted = checkString.validateString(input,initState,finalState);
-                    if(isAccepted){
-                        checkedString.add("Accepted");
-                    }else{
-                        checkedString.add("Rejected");
-                    }
-                }
-                //print result in GUI
                 for(int row=0;row<checkedString.size();row++){
                     fa_checkstrings_model.setValueAt(checkedString.get(row), row, 1);
                 }

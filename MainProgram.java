@@ -284,8 +284,8 @@ public class MainProgram {
                                 if (inputSymbol.equals("ε")){
                                     inputSymbol="";
                                 }
-                                
-                                String[] nextStatesArr = nextStates.split(",");
+                                //split next states into individual states
+                                String[] nextStatesArr = nextStates.split(",");                               
                                 boolean nextStatesMatch = false;
 
                                 for (String nextState : nextStatesArr){
@@ -354,6 +354,7 @@ public class MainProgram {
                 int numRows = FA_Checkstrings_Table.getRowCount();
                 boolean isAccepted; 
                 List<String> inputString = new ArrayList<String>();
+
                 //retrieve strings from user input
                 for (int row = 0; row < numRows; row++){
                     Object value =FA_Checkstrings_Table.getValueAt(row,0); //get strings from the user input column
@@ -372,9 +373,18 @@ public class MainProgram {
                     JOptionPane.showMessageDialog(null, "No Regular Grammar Generated", "Error", JOptionPane.ERROR_MESSAGE);        
                     return;
                 }
-                //stores string result Accept/Reject
+
+                //test input (expected output)
+                //ε (reject)
+                //1111 (reject)
+                //10101010 (reject))
+                //0101010 (Accept)
+                //1 (accept)
+
+                //stores string result: Accept/Reject
                 List<String> checkedString = new ArrayList<String>();
                 for (String input : inputString){
+                    //currently doesnt handle states that transition with empty string (ie C->B)
                     isAccepted = checkString.validateString(input,initState,finalState);
 
                     if(isAccepted){

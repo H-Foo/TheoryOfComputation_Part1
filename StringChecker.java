@@ -12,9 +12,10 @@ public class StringChecker {
     }
 
     public boolean validateString(String input, String initialState, String finalState){
+        //String modifiedInput = input + "ε";
         return validateStringHelper(input,initialState,finalState);
     }
-
+    
     private boolean validateStringHelper(String input, String currentState, String finalState) { 
         
         //check if input is empty for final state
@@ -26,10 +27,15 @@ public class StringChecker {
     
         if (productions != null) {
             for(String production : productions){
+
                 String inputSymbol = production.substring(0,1);
                 String nextState = production.substring(1);
                 
-                if (inputSymbol.equals("ε")){
+                //debug logic
+                System.out.println("input["+ input+ "] currState:"+ currentState + " Checking: inputSymbol=" + inputSymbol + ", nxtState=" + nextState);
+
+                //for final state -> ε
+                if (inputSymbol.equals("ε") && nextState.isEmpty()){
                     if(validateStringHelper(input, nextState,finalState)){
                             return true;
                         }
@@ -38,6 +44,12 @@ public class StringChecker {
                     if (validateStringHelper(input.substring(1), nextState, finalState)) {
                         return true;
                     }           
+                }
+                else if(grammarProductions.containsKey(inputSymbol) && nextState.isEmpty()){
+                    //Handle transitions with empty String
+                    //inputSymbol will be the nextState and nextState will be empty, chnage nextState = inputSymbol
+                    if (validateStringHelper(input, inputSymbol, finalState))
+                        return true;
                 }                 
             }
         }
@@ -55,7 +67,7 @@ public class StringChecker {
                 String[] parts = line.split("->");
     
                 if (parts.length == 2) {
-                    String nonTerminal = parts[0].trim();
+                    String states = parts[0].trim();
                     String productions = parts[1].trim();
     
                     List<String> productionList = new ArrayList<>();
@@ -64,7 +76,7 @@ public class StringChecker {
                     for (String production : productionArray) {
                         productionList.add(production.trim());
                     }
-                    grammarProductions.put(nonTerminal, productionList);
+                    grammarProductions.put(states, productionList);
                 }
             }
         } catch (IOException e) {

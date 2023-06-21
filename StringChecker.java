@@ -12,7 +12,6 @@ public class StringChecker {
     }
 
     public boolean validateString(String input, String initialState, String finalState){
-        //String modifiedInput = input + "ε";
         return validateStringHelper(input,initialState,finalState);
     }
     
@@ -32,10 +31,10 @@ public class StringChecker {
                 String nextState = production.substring(1);
                 
                 //debug logic
-                System.out.println("input["+ input+ "] currState:"+ currentState + " Checking: inputSymbol=" + inputSymbol + ", nxtState=" + nextState);
+                System.out.println("input["+input + "] currState:"+ currentState + " Checking: inputSymbol=" + inputSymbol + ", nxtState=" + nextState);
 
                 //for final state -> ε
-                if (inputSymbol.equals("ε") && nextState.isEmpty()){
+                if (inputSymbol.equals("ε")){
                     if(validateStringHelper(input, nextState,finalState)){
                             return true;
                         }
